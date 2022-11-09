@@ -15,16 +15,7 @@ BACKUP_DIR = "BACKUP"
 ANCHOR_NUMBER = 5
 TOP_ISSUES_LABELS = ["Top"]
 TODO_ISSUES_LABELS = ["TODO"]
-FRIENDS_LABELS = ["Friends"]
-IGNORE_LABELS = FRIENDS_LABELS + TOP_ISSUES_LABELS + TODO_ISSUES_LABELS
-
-FRIENDS_TABLE_HEAD = "| Name | Link | Desc | \n | ---- | ---- | ---- |\n"
-FRIENDS_TABLE_TEMPLATE = "| {name} | {link} | {desc} |\n"
-FRIENDS_INFO_DICT = {
-    "名字": "",
-    "链接": "",
-    "描述": "",
-}
+IGNORE_LABELS = TOP_ISSUES_LABELS + TODO_ISSUES_LABELS
 
 
 def get_me(user):
@@ -144,23 +135,6 @@ def add_md_top(repo, md, me):
             if is_me(issue, me):
                 add_issue_info(issue, md)
 
-
-def add_md_firends(repo, md, me):
-    s = FRIENDS_TABLE_HEAD
-    friends_issues = list(repo.get_issues(labels=FRIENDS_LABELS))
-    for issue in friends_issues:
-        for comment in issue.get_comments():
-            if is_hearted_by_me(comment, me):
-                try:
-                    s += _make_friend_table_string(comment.body)
-                except Exception as e:
-                    print(str(e))
-                    pass
-    with open(md, "a+", encoding="utf-8") as md:
-        md.write("## 友情链接\n")
-        md.write(s)
-
-
 def add_md_recent(repo, md, me, limit=5):
     count = 0
     with open(md, "a+", encoding="utf-8") as md:
@@ -258,7 +232,7 @@ def main(token, repo_name, issue_number=None, dir_name=BACKUP_DIR):
     repo = get_repo(user, repo_name)
     # add to readme one by one, change order here
     add_md_header("README.md", repo_name)
-    for func in [add_md_firends, add_md_top, add_md_recent, add_md_label, add_md_todo]:
+    for func in [add_md_top, add_md_recent, add_md_label, add_md_todo]:
         func(repo, "README.md", me)
 
     generate_rss_feed(repo, "feed.xml", me)
