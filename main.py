@@ -9,8 +9,8 @@ from feedgen.feed import FeedGenerator
 from lxml.etree import CDATA
 
 MD_HEAD = """## Gitblog
-My personal blog using issues and GitHub Actions (随意转载，无需署名)
-[RSS Feed](https://raw.githubusercontent.com/{repo_name}/main/feed.xml)
+My personal blog using issues and GitHub Actions    
+[RSS Feed](https://raw.githubusercontent.com/{repo_name}/main/feed.xml)   
 """
 
 BACKUP_DIR = "BACKUP"
@@ -63,18 +63,16 @@ def _make_friend_table_string(s):
         print(str(e))
         return
 
-
 # help to covert xml vaild string
 def _valid_xml_char_ordinal(c):
     codepoint = ord(c)
     # conditions ordered by presumed frequency
     return (
-        0x20 <= codepoint <= 0xD7FF
-        or codepoint in (0x9, 0xA, 0xD)
-        or 0xE000 <= codepoint <= 0xFFFD
-        or 0x10000 <= codepoint <= 0x10FFFF
-    )
-
+        0x20 <= codepoint <= 0xD7FF or
+        codepoint in (0x9, 0xA, 0xD) or
+        0xE000 <= codepoint <= 0xFFFD or
+        0x10000 <= codepoint <= 0x10FFFF
+        )
 
 def format_time(time):
     return str(time)[:10]
@@ -188,11 +186,6 @@ def add_md_header(md, repo_name):
 
 def add_md_label(repo, md, me):
     labels = get_repo_labels(repo)
-
-    # sort lables by description info if it exists, otherwise sort by name, 
-    # for example, we can let the description start with a number (1#Java, 2#Docker, 3#K8s, etc.)
-    labels = sorted(labels, key=lambda x: (x.description is None, x.description == "", x.description, x.name))
-
     with open(md, "a+", encoding="utf-8") as md:
         for label in labels:
 
@@ -243,7 +236,7 @@ def generate_rss_feed(repo, filename, me):
     )
     generator.link(href=repo.html_url)
     generator.link(
-        href=f"https://raw.githubusercontent.com/{repo.full_name}/main/{filename}",
+        href=f"https://raw.githubusercontent.com/{repo.full_name}/main/{filename}",  
         rel="self",
     )
     for issue in repo.get_issues():
@@ -256,8 +249,8 @@ def generate_rss_feed(repo, filename, me):
         item.published(issue.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"))
         for label in issue.labels:
             item.category({"term": label.name})
-        body = "".join(c for c in issue.body if _valid_xml_char_ordinal(c))
-        item.content(CDATA(marko.convert(body)), type="html")
+            body = ''.join(c for c in issue.body if _valid_xml_char_ordinal(c))
+            item.content(CDATA(marko.convert(body)), type="html")
     generator.atom_file(filename)
 
 
